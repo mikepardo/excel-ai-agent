@@ -123,7 +123,21 @@ export default function SpreadsheetEditor() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => {
+                if (spreadsheet?.fileUrl) {
+                  const link = document.createElement('a');
+                  link.href = spreadsheet.fileUrl;
+                  link.download = spreadsheet.originalFileName || `${spreadsheet.name}.xlsx`;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  toast.success('Downloading spreadsheet...');
+                }
+              }}
+            >
               <Download className="h-4 w-4 mr-2" />
               Export
             </Button>

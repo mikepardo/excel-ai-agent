@@ -19,6 +19,50 @@ export const appRouter = router({
     }),
   }),
 
+  template: router({
+    // List all available templates
+    list: publicProcedure.query(async () => {
+      const { getAllTemplates } = await import('./templates');
+      return getAllTemplates();
+    }),
+
+    // Create spreadsheet from template
+    createFromTemplate: protectedProcedure
+      .input(z.object({
+        templateId: z.string(),
+        name: z.string(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { getTemplateById } = await import('./templates');
+        const { createExcelFile } = await import('./excelProcessor');
+        const { createSpreadsheet } = await import('./db');
+
+        const template = getTemplateById(input.templateId);
+        if (!template) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Template not found' });
+        }
+
+        // Create Excel file from template
+        const { fileKey, fileUrl } = await createExcelFile(
+          template.data,
+          input.name,
+          ctx.user.id
+        );
+
+        // Create spreadsheet record
+        const id = await createSpreadsheet({
+          userId: ctx.user.id,
+          name: input.name,
+          fileKey,
+          fileUrl,
+          fileType: 'xlsx',
+          originalFileName: `${input.name}.xlsx`,
+        });
+
+        return { id };
+      }),
+  }),
+
   spreadsheet: router({
     // List all user's spreadsheets
     list: protectedProcedure.query(async ({ ctx }) => {
@@ -93,6 +137,27 @@ export const appRouter = router({
         await deleteSpreadsheet(input.id);
         return { success: true };
       }),
+
+    // Get download URL for spreadsheet
+    getDownloadUrl: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const { getSpreadsheetById } = await import('./db');
+        
+        const spreadsheet = await getSpreadsheetById(input.id);
+        if (!spreadsheet) {
+          throw new TRPCError({ code: 'NOT_FOUND' });
+        }
+        
+        if (spreadsheet.userId !== ctx.user.id) {
+          throw new TRPCError({ code: 'FORBIDDEN' });
+        }
+        
+        return {
+          url: spreadsheet.fileUrl,
+          fileName: spreadsheet.originalFileName || `${spreadsheet.name}.xlsx`,
+        };
+      }),
   }),
 
   chat: router({
@@ -160,19 +225,53 @@ export const appRouter = router({
           content: aiResponse.message,
         });
         
-        // If AI made changes, create checkpoint
+        // If AI made changes, apply them and create checkpoint
         if (aiResponse.actions && aiResponse.actions.length > 0 && !aiResponse.needsClarification) {
-          // For now, we'll create a checkpoint with the description
-          // In a real implementation, you'd apply the actions to the spreadsheet
-          const description = generateCheckpointDescription(aiResponse.actions);
+          const { applyAIActions } = await import('./excelModifier');
+          const { createExcelFile } = await import('./excelProcessor');
+          const { updateSpreadsheet } = await import('./db');
           
-          await createCheckpoint({
-            spreadsheetId: input.spreadsheetId,
-            userId: ctx.user.id,
-            fileKey: spreadsheet.fileKey,
-            fileUrl: spreadsheet.fileUrl,
-            description,
-          });
+          try {
+            // Apply AI actions to the spreadsheet
+            const { workbook, data } = await applyAIActions(
+              spreadsheet.fileUrl,
+              aiResponse.actions
+            );
+            
+            // Save modified spreadsheet to S3
+            const { fileKey, fileUrl } = await createExcelFile(
+              data,
+              spreadsheet.name,
+              ctx.user.id
+            );
+            
+            // Update spreadsheet record
+            await updateSpreadsheet(input.spreadsheetId, {
+              fileKey,
+              fileUrl,
+            });
+            
+            // Create checkpoint
+            const description = generateCheckpointDescription(aiResponse.actions);
+            await createCheckpoint({
+              spreadsheetId: input.spreadsheetId,
+              userId: ctx.user.id,
+              fileKey,
+              fileUrl,
+              description,
+            });
+          } catch (error) {
+            console.error('Error applying AI actions:', error);
+            // Still save a checkpoint with the original file
+            const description = generateCheckpointDescription(aiResponse.actions);
+            await createCheckpoint({
+              spreadsheetId: input.spreadsheetId,
+              userId: ctx.user.id,
+              fileKey: spreadsheet.fileKey,
+              fileUrl: spreadsheet.fileUrl,
+              description: `${description} (failed to apply)`,
+            });
+          }
         }
         
         return aiResponse;
@@ -222,3 +321,4 @@ export const appRouter = router({
 });
 
 export type AppRouter = typeof appRouter;
+

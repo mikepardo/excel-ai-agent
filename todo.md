@@ -42,3 +42,22 @@
 - [ ] Template library
 - [ ] Collaboration features
 - [ ] Industry-specific presets
+
+## Enhancement Phase - New Features
+
+### AI Spreadsheet Modifications
+- [x] Execute AI-generated cell updates on actual spreadsheet
+- [x] Apply formula insertions from AI commands
+- [x] Implement formatting changes based on AI responses
+- [x] Update spreadsheet file in S3 after modifications
+
+### Excel Export
+- [x] Create download endpoint for Excel files
+- [x] Generate .xlsx files from current spreadsheet state
+- [x] Add export button to spreadsheet editor UI
+
+### Template System
+- [x] Create empty spreadsheet template functionality
+- [x] Build financial model templates (DCF, Budget, P&L)
+- [x] Add template selection UI to dashboard
+- [x] Pre-populate templates with sample structure

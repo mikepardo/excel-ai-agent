@@ -1,19 +1,47 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { FileSpreadsheet, Plus, Trash2, Clock, Loader2 } from "lucide-react";
 import { useLocation } from "wouter";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useState, useRef } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 import { storagePut } from "../../../server/storage";
 
 export default function Dashboard() {
   const { user, isAuthenticated, loading: authLoading } = useAuth();
   const [, setLocation] = useLocation();
   const [uploading, setUploading] = useState(false);
+  const [showTemplateDialog, setShowTemplateDialog] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string>('');
+  const [newSpreadsheetName, setNewSpreadsheetName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { data: templates } = trpc.template.list.useQuery();
+
+  const createFromTemplate = trpc.template.createFromTemplate.useMutation({
+    onSuccess: (data) => {
+      toast.success("Spreadsheet created successfully");
+      refetch();
+      setShowTemplateDialog(false);
+      setNewSpreadsheetName('');
+      setSelectedTemplate('');
+      setLocation(`/spreadsheet/${data.id}`);
+    },
+    onError: (error) => {
+      toast.error(`Failed to create spreadsheet: ${error.message}`);
+    },
+  });
 
   const { data: spreadsheets, isLoading, refetch } = trpc.spreadsheet.list.useQuery(undefined, {
     enabled: isAuthenticated,
@@ -103,9 +131,19 @@ export default function Dashboard() {
   };
 
   const handleCreateNew = () => {
-    // For now, just navigate to a new spreadsheet
-    // In a real implementation, you'd create an empty spreadsheet first
-    toast.info("Creating new spreadsheet...");
+    setShowTemplateDialog(true);
+  };
+
+  const handleTemplateSubmit = () => {
+    if (!selectedTemplate || !newSpreadsheetName.trim()) {
+      toast.error('Please select a template and enter a name');
+      return;
+    }
+
+    createFromTemplate.mutate({
+      templateId: selectedTemplate,
+      name: newSpreadsheetName.trim(),
+    });
   };
 
   if (authLoading) {
@@ -241,6 +279,79 @@ export default function Dashboard() {
           </Card>
         )}
       </main>
+
+      {/* Template Selection Dialog */}
+      <Dialog open={showTemplateDialog} onOpenChange={setShowTemplateDialog}>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Create New Spreadsheet</DialogTitle>
+            <DialogDescription>
+              Choose a template to get started quickly
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            <div>
+              <Label htmlFor="name">Spreadsheet Name</Label>
+              <Input
+                id="name"
+                value={newSpreadsheetName}
+                onChange={(e) => setNewSpreadsheetName(e.target.value)}
+                placeholder="My Spreadsheet"
+                className="mt-1"
+              />
+            </div>
+            <div>
+              <Label>Select Template</Label>
+              <div className="grid grid-cols-2 gap-3 mt-2">
+                {templates?.map((template) => (
+                  <button
+                    key={template.id}
+                    onClick={() => setSelectedTemplate(template.id)}
+                    className={`text-left p-4 border rounded-lg hover:border-emerald-600 transition-colors ${
+                      selectedTemplate === template.id
+                        ? 'border-emerald-600 bg-emerald-50'
+                        : 'border-gray-200'
+                    }`}
+                  >
+                    <h4 className="font-semibold text-sm">{template.name}</h4>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {template.description}
+                    </p>
+                    <span className="text-xs text-emerald-600 mt-2 inline-block">
+                      {template.category}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex gap-2 justify-end pt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowTemplateDialog(false);
+                  setNewSpreadsheetName('');
+                  setSelectedTemplate('');
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleTemplateSubmit}
+                disabled={!selectedTemplate || !newSpreadsheetName.trim() || createFromTemplate.isPending}
+              >
+                {createFromTemplate.isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Creating...
+                  </>
+                ) : (
+                  'Create Spreadsheet'
+                )}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
