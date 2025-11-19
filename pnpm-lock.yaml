@@ -151,6 +151,9 @@ importers:
       framer-motion:
         specifier: ^12.23.22
         version: 12.23.22(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
+      hot-formula-parser:
+        specifier: ^4.0.0
+        version: 4.0.0
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
@@ -1041,6 +1044,10 @@ packages:
 
   '@floating-ui/utils@0.2.10':
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
+
+  '@handsontable/formulajs@2.0.2':
+    resolution: {integrity: sha512-maIyMJtYjA5e/R9nyA22Qd7Yw73MBSxClJvle0a8XWAS/5l6shc/OFpQqrmwMy4IXUCmywJ9ER0gOGz/YA720w==}
+    hasBin: true
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -3393,6 +3400,9 @@ packages:
   hastscript@9.0.1:
     resolution: {integrity: sha512-g7df9rMFX/SPi34tyGCyUBREQoKkapwdY/T04Qn9TDWfHhAYt4/I0gMVirzK5wEzeUqIjEB+LXC/ypb7Aqno5w==}
 
+  hot-formula-parser@4.0.0:
+    resolution: {integrity: sha512-diG1UvuQ3HxtfezVUIpvndk/bVkqZJ9Rfv10MdVF7pJEj8P2Jd4iCZSMJCN3lDhnLegaVlfSYSA6+szYNFQUKg==}
+
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
 
@@ -4483,6 +4493,9 @@ packages:
   tar@7.5.1:
     resolution: {integrity: sha512-nlGpxf+hv0v7GkWBK2V9spgactGOp0qvfWRxUMjqHyzrt3SgwE48DIv/FhqPHJYLHpgW1opq3nERbz5Anq7n1g==}
     engines: {node: '>=18'}
+
+  tiny-emitter@2.1.0:
+    resolution: {integrity: sha512-NB6Dk1A9xgQPMoGqC5CVXn123gWyte215ONT5Pp5a0yt4nlEoO1ZWeCwpncaekPHXO60i47ihFnZPiRPjRMq4Q==}
 
   tiny-invariant@1.3.3:
     resolution: {integrity: sha512-+FbBPE1o9QAYvviau/qC5SE3caw21q3xkvWKBtja5vgqOWIHHJ3ioaq1VPfn/Szqctz2bU/oYeKd9/z5BL+PVg==}
@@ -5776,6 +5789,11 @@ snapshots:
       react-dom: 19.2.0(react@19.2.0)
 
   '@floating-ui/utils@0.2.10': {}
+
+  '@handsontable/formulajs@2.0.2':
+    dependencies:
+      bessel: 1.0.2
+      jstat: 1.9.6
 
   '@iconify/types@2.0.0': {}
 
@@ -8457,6 +8475,11 @@ snapshots:
       property-information: 7.1.0
       space-separated-tokens: 2.0.2
 
+  hot-formula-parser@4.0.0:
+    dependencies:
+      '@handsontable/formulajs': 2.0.2
+      tiny-emitter: 2.1.0
+
   html-url-attributes@3.0.1: {}
 
   html-void-elements@3.0.0: {}
@@ -9922,6 +9945,8 @@ snapshots:
       minipass: 7.1.2
       minizlib: 3.1.0
       yallist: 5.0.0
+
+  tiny-emitter@2.1.0: {}
 
   tiny-invariant@1.3.3: {}
 

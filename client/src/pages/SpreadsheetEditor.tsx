@@ -24,6 +24,7 @@ import { AIInsightsPanel } from "@/components/AIInsightsPanel";
 import { FormulaDebugger } from "@/components/FormulaDebugger";
 import { DrawingTools } from "@/components/DrawingTools";
 import { SheetManager } from "@/components/SheetManager";
+import { InteractiveSpreadsheet } from "@/components/InteractiveSpreadsheet";
 import { SearchReplacePanel } from "@/components/SearchReplacePanel";
 import { DataCleaningWizard } from "@/components/DataCleaningWizard";
 import { DashboardBuilder } from "@/components/DashboardBuilder";
@@ -365,46 +366,16 @@ export default function SpreadsheetEditor() {
                 Formulas
               </TabsTrigger>
             </TabsList>
-            <TabsContent value="spreadsheet" className="h-full">
-              <Card className="h-full p-6">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">Spreadsheet Data</h3>
-              {spreadsheet.data && spreadsheet.data.sheets.length > 0 ? (
-                <div className="space-y-6">
-                  {spreadsheet.data.sheets.map((sheet, idx) => (
-                    <div key={idx} className="border rounded-lg p-4">
-                      <h4 className="font-medium mb-3">{sheet.name}</h4>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full text-sm border-collapse">
-                          <tbody>
-                            {sheet.data.slice(0, 20).map((row, rowIdx) => (
-                              <tr key={rowIdx} className="border-b">
-                                {row.map((cell, cellIdx) => (
-                                  <td
-                                    key={cellIdx}
-                                    className="border px-3 py-2 text-gray-700"
-                                  >
-                                    {cell !== null && cell !== undefined ? String(cell) : ""}
-                                  </td>
-                                ))}
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                        {sheet.data.length > 20 && (
-                          <p className="text-xs text-gray-500 mt-2">
-                            Showing first 20 rows of {sheet.data.length}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500">No data available</p>
-              )}
-            </div>
-              </Card>
+             <TabsContent value="spreadsheet" className="h-full">
+              <div className="p-4">
+                {spreadsheet.data && spreadsheet.data.sheets.length > 0 ? (
+                  <InteractiveSpreadsheet
+                    initialData={spreadsheet.data.sheets[0].data}
+                  />
+                ) : (
+                  <InteractiveSpreadsheet rows={20} cols={10} />
+                )}
+              </div>
             </TabsContent>
             <TabsContent value="charts" className="h-full">
               <div className="p-4">
