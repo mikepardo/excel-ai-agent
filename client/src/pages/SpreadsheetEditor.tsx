@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { trpc } from "@/lib/trpc";
-import { FileSpreadsheet, Send, Loader2, ArrowLeft, History, Download } from "lucide-react";
+import { FileSpreadsheet, Send, Loader2, ArrowLeft, History, Download, Search, Wand2, LayoutDashboard, GitCompare, FileText, MessageCircle, BookOpen } from "lucide-react";
 import { useLocation, useRoute } from "wouter";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { toast } from "sonner";
@@ -24,6 +24,13 @@ import { AIInsightsPanel } from "@/components/AIInsightsPanel";
 import { FormulaDebugger } from "@/components/FormulaDebugger";
 import { DrawingTools } from "@/components/DrawingTools";
 import { SheetManager } from "@/components/SheetManager";
+import { SearchReplacePanel } from "@/components/SearchReplacePanel";
+import { DataCleaningWizard } from "@/components/DataCleaningWizard";
+import { DashboardBuilder } from "@/components/DashboardBuilder";
+import { SpreadsheetComparison } from "@/components/SpreadsheetComparison";
+import { ScheduledReports } from "@/components/ScheduledReports";
+import { NaturalLanguageQuery } from "@/components/NaturalLanguageQuery";
+import { FormulaLibrary } from "@/components/FormulaLibrary";
 import {
   Tabs,
   TabsContent,
@@ -329,6 +336,34 @@ export default function SpreadsheetEditor() {
                 <Pencil className="h-4 w-4 mr-2" />
                 Drawing
               </TabsTrigger>
+              <TabsTrigger value="search">
+                <Search className="h-4 w-4 mr-2" />
+                Search
+              </TabsTrigger>
+              <TabsTrigger value="clean">
+                <Wand2 className="h-4 w-4 mr-2" />
+                Clean
+              </TabsTrigger>
+              <TabsTrigger value="dashboard">
+                <LayoutDashboard className="h-4 w-4 mr-2" />
+                Dashboard
+              </TabsTrigger>
+              <TabsTrigger value="compare">
+                <GitCompare className="h-4 w-4 mr-2" />
+                Compare
+              </TabsTrigger>
+              <TabsTrigger value="reports">
+                <FileText className="h-4 w-4 mr-2" />
+                Reports
+              </TabsTrigger>
+              <TabsTrigger value="query">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Query
+              </TabsTrigger>
+              <TabsTrigger value="formulas">
+                <BookOpen className="h-4 w-4 mr-2" />
+                Formulas
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="spreadsheet" className="h-full">
               <Card className="h-full p-6">
@@ -421,6 +456,27 @@ export default function SpreadsheetEditor() {
                 onStrokeWidthChange={(width) => console.log('Stroke width:', width)}
                 onExport={() => console.log('Export drawing')}
               />
+            </TabsContent>
+            <TabsContent value="search" className="h-full">
+              <SearchReplacePanel />
+            </TabsContent>
+            <TabsContent value="clean" className="h-full">
+              <DataCleaningWizard />
+            </TabsContent>
+            <TabsContent value="dashboard" className="h-full">
+              <DashboardBuilder />
+            </TabsContent>
+            <TabsContent value="compare" className="h-full">
+              <SpreadsheetComparison />
+            </TabsContent>
+            <TabsContent value="reports" className="h-full">
+              <ScheduledReports />
+            </TabsContent>
+            <TabsContent value="query" className="h-full">
+              <NaturalLanguageQuery />
+            </TabsContent>
+            <TabsContent value="formulas" className="h-full">
+              <FormulaLibrary />
             </TabsContent>
           </Tabs>
         </div>
