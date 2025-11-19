@@ -153,6 +153,36 @@ export const dataSyncs = mysqlTable('dataSyncs', {
 export type DataSync = typeof dataSyncs.$inferSelect;
 export type InsertDataSync = typeof dataSyncs.$inferInsert;
 
+export const sheets = mysqlTable('sheets', {
+  id: int('id').autoincrement().primaryKey(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  data: text('data').notNull(), // JSON spreadsheet data
+  order: int('order').default(0).notNull(),
+  visible: int('visible').default(1).notNull(), // 1 = visible, 0 = hidden
+  protected: int('protected').default(0).notNull(), // 1 = protected, 0 = editable
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type Sheet = typeof sheets.$inferSelect;
+export type InsertSheet = typeof sheets.$inferInsert;
+
+export const annotations = mysqlTable('annotations', {
+  id: int('id').autoincrement().primaryKey(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  sheetId: int('sheetId'),
+  userId: int('userId').notNull(),
+  type: varchar('type', { length: 50 }).notNull(), // shape, text, arrow, freehand
+  data: text('data').notNull(), // JSON: position, size, style, content
+  layer: int('layer').default(0).notNull(),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type Annotation = typeof annotations.$inferSelect;
+export type InsertAnnotation = typeof annotations.$inferInsert;
+
 /**
  * Chat messages between user and AI
  */

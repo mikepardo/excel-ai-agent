@@ -14,12 +14,16 @@ import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcutsDialog";
 import { Streamdown } from "streamdown";
 import { useCollaboration } from "@/hooks/useCollaboration";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Calculator, BarChart3, MessageSquare, Sparkles } from "lucide-react";
+import { Users, Calculator, BarChart3, MessageSquare, Sparkles, Lightbulb, Bug, Pencil } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VisualizationPanel } from "@/components/VisualizationPanel";
 import { CommentPanel } from "@/components/CommentPanel";
 import { MacroPanel } from "@/components/MacroPanel";
 import { AdvancedFeaturesPanel } from "@/components/AdvancedFeaturesPanel";
+import { AIInsightsPanel } from "@/components/AIInsightsPanel";
+import { FormulaDebugger } from "@/components/FormulaDebugger";
+import { DrawingTools } from "@/components/DrawingTools";
+import { SheetManager } from "@/components/SheetManager";
 import {
   Tabs,
   TabsContent,
@@ -313,6 +317,18 @@ export default function SpreadsheetEditor() {
                 <Sparkles className="h-4 w-4 mr-2" />
                 Advanced
               </TabsTrigger>
+              <TabsTrigger value="insights">
+                <Lightbulb className="h-4 w-4 mr-2" />
+                Insights
+              </TabsTrigger>
+              <TabsTrigger value="debugger">
+                <Bug className="h-4 w-4 mr-2" />
+                Debugger
+              </TabsTrigger>
+              <TabsTrigger value="drawing">
+                <Pencil className="h-4 w-4 mr-2" />
+                Drawing
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="spreadsheet" className="h-full">
               <Card className="h-full p-6">
@@ -390,8 +406,37 @@ export default function SpreadsheetEditor() {
                 />
               )}
             </TabsContent>
+            <TabsContent value="insights" className="h-full">
+              {spreadsheet && (
+                <AIInsightsPanel spreadsheetData={spreadsheet.data} />
+              )}
+            </TabsContent>
+            <TabsContent value="debugger" className="h-full">
+              <FormulaDebugger />
+            </TabsContent>
+            <TabsContent value="drawing" className="h-full">
+              <DrawingTools
+                onToolSelect={(tool) => console.log('Tool selected:', tool)}
+                onColorChange={(color) => console.log('Color changed:', color)}
+                onStrokeWidthChange={(width) => console.log('Stroke width:', width)}
+                onExport={() => console.log('Export drawing')}
+              />
+            </TabsContent>
           </Tabs>
         </div>
+
+        {/* Sheet Manager */}
+        <SheetManager
+          sheets={[{ id: 1, name: 'Sheet1', visible: true, protected: false }]}
+          activeSheetId={1}
+          onSheetChange={(id) => console.log('Sheet changed:', id)}
+          onSheetAdd={(name) => console.log('Add sheet:', name)}
+          onSheetRename={(id, name) => console.log('Rename sheet:', id, name)}
+          onSheetDelete={(id) => console.log('Delete sheet:', id)}
+          onSheetCopy={(id) => console.log('Copy sheet:', id)}
+          onSheetToggleVisibility={(id) => console.log('Toggle visibility:', id)}
+          onSheetToggleProtection={(id) => console.log('Toggle protection:', id)}
+        />
 
         {/* Keyboard Shortcuts Dialog */}
         <KeyboardShortcutsDialog

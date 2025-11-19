@@ -43,6 +43,13 @@
       "when": 1763563595050,
       "tag": "0005_hard_sharon_ventura",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1763564656692,
+      "tag": "0006_supreme_oracle",
+      "breakpoints": true
     }
   ]
 }

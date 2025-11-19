@@ -240,3 +240,45 @@
 - [x] Build chart customization UI
 - [x] Implement real-time chart updates
 - [x] Add chart templates library
+
+## AI Insights & Advanced Features Phase
+
+### AI-Powered Data Insights
+- [x] Create insights analysis engine
+- [x] Implement anomaly detection algorithms
+- [x] Build trend analysis and forecasting
+- [x] Add natural language insight explanations
+- [x] Create recommended actions system
+- [x] Build insights dashboard UI
+- [x] Implement insight notifications
+- [x] Add insight history and tracking
+
+### Multi-Sheet Workbook Support
+- [x] Extend database schema for multiple sheets
+- [x] Build sheet management (add, delete, rename, copy)
+- [x] Implement sheet tabs navigation UI
+- [x] Add cross-sheet formula support
+- [x] Create sheet reference syntax (Sheet1!A1)
+- [x] Build sheet reordering functionality
+- [x] Implement sheet visibility controls
+- [x] Add sheet protection settings
+
+### Collaborative Annotations & Drawing Tools
+- [x] Create drawing layer system
+- [x] Implement shape tools (rectangle, circle, arrow, line)
+- [x] Add text box annotations
+- [x] Build freehand drawing tool
+- [x] Create color picker and styling options
+- [x] Implement layer management
+- [x] Add drawing export functionality
+- [x] Build collaborative drawing sync
+
+### AI Formula Debugger
+- [x] Create formula parser and analyzer
+- [x] Implement error detection and classification
+- [x] Build AI-powered fix suggestions
+- [x] Add formula dependency tracing
+- [x] Create circular reference detection
+- [x] Implement step-by-step execution viewer
+- [x] Build formula explanation generator
+- [x] Add debugger UI panel
