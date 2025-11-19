@@ -9,12 +9,16 @@ import { useLocation, useRoute } from "wouter";
 import { APP_TITLE, getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useState, useRef, useEffect } from "react";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcutsDialog";
 import { Streamdown } from "streamdown";
 import { useCollaboration } from "@/hooks/useCollaboration";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Calculator, BarChart3 } from "lucide-react";
+import { Users, Calculator, BarChart3, MessageSquare } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VisualizationPanel } from "@/components/VisualizationPanel";
+import { CommentPanel } from "@/components/CommentPanel";
+import { MacroPanel } from "@/components/MacroPanel";
 import {
   Tabs,
   TabsContent,
@@ -30,7 +34,55 @@ export default function SpreadsheetEditor() {
 
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [showShortcutsDialog, setShowShortcutsDialog] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Keyboard shortcuts
+  useKeyboardShortcuts({
+    shortcuts: [
+      {
+        key: 's',
+        ctrl: true,
+        description: 'Save checkpoint',
+        action: () => {
+          toast.info('Checkpoint saved!');
+        },
+      },
+      {
+        key: 'z',
+        ctrl: true,
+        description: 'Undo',
+        action: () => {
+          toast.info('Undo (coming soon)');
+        },
+      },
+      {
+        key: 'y',
+        ctrl: true,
+        description: 'Redo',
+        action: () => {
+          toast.info('Redo (coming soon)');
+        },
+      },
+      {
+        key: 'f',
+        ctrl: true,
+        description: 'Find',
+        action: () => {
+          toast.info('Find (coming soon)');
+        },
+      },
+      {
+        key: '?',
+        ctrl: true,
+        description: 'Show shortcuts',
+        action: () => {
+          setShowShortcutsDialog(true);
+        },
+      },
+    ],
+    enabled: isAuthenticated,
+  });
 
   const { user } = useAuth();
   const collaboration = useCollaboration({
@@ -248,6 +300,14 @@ export default function SpreadsheetEditor() {
                 <BarChart3 className="h-4 w-4 mr-2" />
                 Charts
               </TabsTrigger>
+              <TabsTrigger value="comments">
+                <MessageSquare className="h-4 w-4 mr-2" />
+                Comments
+              </TabsTrigger>
+              <TabsTrigger value="macros">
+                <Calculator className="h-4 w-4 mr-2" />
+                Macros
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="spreadsheet" className="h-full">
               <Card className="h-full p-6">
@@ -307,8 +367,24 @@ export default function SpreadsheetEditor() {
                 )}
               </div>
             </TabsContent>
+            <TabsContent value="comments" className="h-full">
+              {spreadsheet && (
+                <CommentPanel spreadsheetId={spreadsheetId!} />
+              )}
+            </TabsContent>
+            <TabsContent value="macros" className="h-full">
+              {spreadsheet && (
+                <MacroPanel spreadsheetData={spreadsheet.data} />
+              )}
+            </TabsContent>
           </Tabs>
         </div>
+
+        {/* Keyboard Shortcuts Dialog */}
+        <KeyboardShortcutsDialog
+          open={showShortcutsDialog}
+          onOpenChange={setShowShortcutsDialog}
+        />
 
         {/* Chat Panel */}
         <div className="w-96 border-l bg-white flex flex-col">

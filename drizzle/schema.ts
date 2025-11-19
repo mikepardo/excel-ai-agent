@@ -59,6 +59,34 @@ export const checkpoints = mysqlTable("checkpoints", {
 export type Checkpoint = typeof checkpoints.$inferSelect;
 export type InsertCheckpoint = typeof checkpoints.$inferInsert;
 
+export const comments = mysqlTable('comments', {
+  id: int('id').autoincrement().primaryKey(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  userId: int('userId').notNull(),
+  cellRef: varchar('cellRef', { length: 20 }).notNull(), // e.g., "A1", "B5"
+  content: text('content').notNull(),
+  parentId: int('parentId'), // For threaded replies
+  resolved: int('resolved').default(0).notNull(), // 0 = unresolved, 1 = resolved
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type Comment = typeof comments.$inferSelect;
+export type InsertComment = typeof comments.$inferInsert;
+
+export const macros = mysqlTable('macros', {
+  id: int('id').autoincrement().primaryKey(),
+  userId: int('userId').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  description: text('description'),
+  actions: text('actions').notNull(), // JSON string of recorded actions
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type Macro = typeof macros.$inferSelect;
+export type InsertMacro = typeof macros.$inferInsert;
+
 /**
  * Chat messages between user and AI
  */

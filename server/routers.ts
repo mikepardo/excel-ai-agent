@@ -19,6 +19,155 @@ export const appRouter = router({
     }),
   }),
 
+  macro: router({
+    // Get user's macros
+    list: protectedProcedure.query(async ({ ctx }) => {
+      const { getUserMacros } = await import('./db');
+      return getUserMacros(ctx.user.id);
+    }),
+
+    // Get macro by ID
+    get: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        const { getMacroById } = await import('./db');
+        return getMacroById(input.id);
+      }),
+
+    // Create new macro
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        actions: z.string(), // JSON string
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createMacro } = await import('./db');
+        const { validateMacro } = await import('./macroEngine');
+
+        // Validate macro
+        const macroDef = {
+          name: input.name,
+          description: input.description,
+          actions: JSON.parse(input.actions),
+        };
+        const validation = validateMacro(macroDef);
+        if (!validation.valid) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: validation.errors.join(', '),
+          });
+        }
+
+        const id = await createMacro({
+          userId: ctx.user.id,
+          name: input.name,
+          description: input.description,
+          actions: input.actions,
+        });
+        return { id };
+      }),
+
+    // Execute macro
+    execute: protectedProcedure
+      .input(z.object({
+        macroId: z.number(),
+        spreadsheetData: z.any(),
+      }))
+      .mutation(async ({ input }) => {
+        const { getMacroById } = await import('./db');
+        const { executeMacro } = await import('./macroEngine');
+
+        const macro = await getMacroById(input.macroId);
+        if (!macro) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Macro not found' });
+        }
+
+        const macroDef = {
+          name: macro.name,
+          description: macro.description || undefined,
+          actions: JSON.parse(macro.actions),
+        };
+
+        const result = await executeMacro(macroDef, input.spreadsheetData);
+        return result;
+      }),
+
+    // Delete macro
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteMacro } = await import('./db');
+        await deleteMacro(input.id);
+        return { success: true };
+      }),
+  }),
+
+  comment: router({
+    // Get all comments for a spreadsheet
+    list: protectedProcedure
+      .input(z.object({ spreadsheetId: z.number() }))
+      .query(async ({ input }) => {
+        const { getCommentsBySpreadsheet } = await import('./db');
+        return getCommentsBySpreadsheet(input.spreadsheetId);
+      }),
+
+    // Get comments for a specific cell
+    getByCell: protectedProcedure
+      .input(z.object({ spreadsheetId: z.number(), cellRef: z.string() }))
+      .query(async ({ input }) => {
+        const { getCommentsByCell } = await import('./db');
+        return getCommentsByCell(input.spreadsheetId, input.cellRef);
+      }),
+
+    // Create a new comment
+    create: protectedProcedure
+      .input(z.object({
+        spreadsheetId: z.number(),
+        cellRef: z.string(),
+        content: z.string(),
+        parentId: z.number().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const { createComment } = await import('./db');
+        const id = await createComment({
+          spreadsheetId: input.spreadsheetId,
+          userId: ctx.user.id,
+          cellRef: input.cellRef,
+          content: input.content,
+          parentId: input.parentId,
+        });
+        return { id };
+      }),
+
+    // Update a comment
+    update: protectedProcedure
+      .input(z.object({ id: z.number(), content: z.string() }))
+      .mutation(async ({ input }) => {
+        const { updateComment } = await import('./db');
+        await updateComment(input.id, input.content);
+        return { success: true };
+      }),
+
+    // Resolve/unresolve a comment
+    resolve: protectedProcedure
+      .input(z.object({ id: z.number(), resolved: z.boolean() }))
+      .mutation(async ({ input }) => {
+        const { resolveComment } = await import('./db');
+        await resolveComment(input.id, input.resolved);
+        return { success: true };
+      }),
+
+    // Delete a comment
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        const { deleteComment } = await import('./db');
+        await deleteComment(input.id);
+        return { success: true };
+      }),
+  }),
+
   chart: router({
     // Get chart recommendations
     recommend: protectedProcedure

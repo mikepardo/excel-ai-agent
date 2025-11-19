@@ -87,3 +87,35 @@
 - [x] Add bar, line, pie, and scatter plot support
 - [x] Create interactive chart preview panel
 - [x] Enable chart export and embedding
+
+## Power User Features Phase
+
+### Keyboard Shortcuts & Hotkeys
+- [x] Implement Ctrl+C/V for copy/paste cells
+- [x] Add Ctrl+Z/Y for undo/redo operations
+- [x] Create F2 hotkey for cell editing
+- [x] Add arrow key navigation between cells
+- [x] Implement Ctrl+S for save/checkpoint
+- [x] Add Ctrl+F for find in spreadsheet
+- [x] Create keyboard shortcut help modal (Ctrl+?)
+- [x] Add Tab/Shift+Tab for cell navigation
+
+### Comment Threads & Annotations
+- [x] Create comment database schema
+- [x] Build comment UI component with threading
+- [x] Add @mention functionality for users
+- [x] Implement resolved/unresolved status
+- [x] Create comment notification system
+- [x] Add cell highlighting for commented cells
+- [x] Build comment sidebar panel
+- [x] Enable comment editing and deletion
+
+### Macro Recording & Playback
+- [x] Create macro recording engine
+- [x] Build macro storage in database
+- [x] Implement action capture (edits, formulas, formatting)
+- [x] Create macro playback execution engine
+- [x] Build macro library UI
+- [x] Add macro naming and organization
+- [x] Implement macro parameters for flexibility
+- [x] Create macro sharing between users

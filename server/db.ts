@@ -1,6 +1,6 @@
-import { desc, eq } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, spreadsheets, InsertSpreadsheet, checkpoints, InsertCheckpoint, chatMessages, InsertChatMessage } from "../drizzle/schema";
+import { InsertUser, users, comments, InsertComment, spreadsheets, InsertSpreadsheet, checkpoints, InsertCheckpoint, chatMessages, InsertChatMessage, macros, InsertMacro } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -161,4 +161,89 @@ export async function deleteChatMessages(spreadsheetId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   await db.delete(chatMessages).where(eq(chatMessages.spreadsheetId, spreadsheetId));
+}
+
+// Comment operations
+export async function createComment(comment: InsertComment) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const result = await db.insert(comments).values(comment);
+  return result[0].insertId;
+}
+
+export async function getCommentsBySpreadsheet(spreadsheetId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(comments).where(eq(comments.spreadsheetId, spreadsheetId));
+}
+
+export async function getCommentsByCell(spreadsheetId: number, cellRef: string) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db
+    .select()
+    .from(comments)
+    .where(and(eq(comments.spreadsheetId, spreadsheetId), eq(comments.cellRef, cellRef)));
+}
+
+export async function updateComment(id: number, content: string) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.update(comments).set({ content }).where(eq(comments.id, id));
+}
+
+export async function resolveComment(id: number, resolved: boolean) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.update(comments).set({ resolved: resolved ? 1 : 0 }).where(eq(comments.id, id));
+}
+
+export async function deleteComment(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.delete(comments).where(eq(comments.id, id));
+}
+
+// Macro operations
+export async function createMacro(macro: InsertMacro) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  const result = await db.insert(macros).values(macro);
+  return result[0].insertId;
+}
+
+export async function getUserMacros(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+
+  return db.select().from(macros).where(eq(macros.userId, userId));
+}
+
+export async function getMacroById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(macros).where(eq(macros.id, id)).limit(1);
+  return result[0];
+}
+
+export async function updateMacro(id: number, data: Partial<InsertMacro>) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.update(macros).set(data).where(eq(macros.id, id));
+}
+
+export async function deleteMacro(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error('Database not available');
+
+  await db.delete(macros).where(eq(macros.id, id));
 }
