@@ -87,6 +87,43 @@ export const macros = mysqlTable('macros', {
 export type Macro = typeof macros.$inferSelect;
 export type InsertMacro = typeof macros.$inferInsert;
 
+export const conditionalFormats = mysqlTable('conditionalFormats', {
+  id: int('id').autoincrement().primaryKey(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  cellRange: varchar('cellRange', { length: 100 }).notNull(), // e.g., "A1:B10"
+  ruleType: varchar('ruleType', { length: 50 }).notNull(), // colorScale, dataBar, iconSet, formula
+  config: text('config').notNull(), // JSON configuration
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type ConditionalFormat = typeof conditionalFormats.$inferSelect;
+export type InsertConditionalFormat = typeof conditionalFormats.$inferInsert;
+
+export const validationRules = mysqlTable('validationRules', {
+  id: int('id').autoincrement().primaryKey(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  cellRange: varchar('cellRange', { length: 100 }).notNull(),
+  validationType: varchar('validationType', { length: 50 }).notNull(), // number, date, list, formula
+  config: text('config').notNull(), // JSON configuration
+  errorMessage: text('errorMessage'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type ValidationRule = typeof validationRules.$inferSelect;
+export type InsertValidationRule = typeof validationRules.$inferInsert;
+
+export const namedRanges = mysqlTable('namedRanges', {
+  id: int('id').autoincrement().primaryKey(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  cellRange: varchar('cellRange', { length: 100 }).notNull(),
+  description: text('description'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type NamedRange = typeof namedRanges.$inferSelect;
+export type InsertNamedRange = typeof namedRanges.$inferInsert;
+
 /**
  * Chat messages between user and AI
  */

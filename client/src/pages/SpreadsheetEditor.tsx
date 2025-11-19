@@ -14,11 +14,12 @@ import { KeyboardShortcutsDialog } from "@/components/KeyboardShortcutsDialog";
 import { Streamdown } from "streamdown";
 import { useCollaboration } from "@/hooks/useCollaboration";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Users, Calculator, BarChart3, MessageSquare } from "lucide-react";
+import { Users, Calculator, BarChart3, MessageSquare, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { VisualizationPanel } from "@/components/VisualizationPanel";
 import { CommentPanel } from "@/components/CommentPanel";
 import { MacroPanel } from "@/components/MacroPanel";
+import { AdvancedFeaturesPanel } from "@/components/AdvancedFeaturesPanel";
 import {
   Tabs,
   TabsContent,
@@ -308,6 +309,10 @@ export default function SpreadsheetEditor() {
                 <Calculator className="h-4 w-4 mr-2" />
                 Macros
               </TabsTrigger>
+              <TabsTrigger value="advanced">
+                <Sparkles className="h-4 w-4 mr-2" />
+                Advanced
+              </TabsTrigger>
             </TabsList>
             <TabsContent value="spreadsheet" className="h-full">
               <Card className="h-full p-6">
@@ -375,6 +380,14 @@ export default function SpreadsheetEditor() {
             <TabsContent value="macros" className="h-full">
               {spreadsheet && (
                 <MacroPanel spreadsheetData={spreadsheet.data} />
+              )}
+            </TabsContent>
+            <TabsContent value="advanced" className="h-full">
+              {spreadsheet && (
+                <AdvancedFeaturesPanel
+                  spreadsheetId={spreadsheetId!}
+                  spreadsheetData={spreadsheet.data}
+                />
               )}
             </TabsContent>
           </Tabs>
