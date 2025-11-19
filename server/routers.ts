@@ -289,6 +289,7 @@ export const appRouter = router({
       .query(async ({ ctx, input }) => {
         const { getSpreadsheetById } = await import('./db');
         const { parseExcelFile } = await import('./excelProcessor');
+        const { storageGet } = await import('./storage');
         
         const spreadsheet = await getSpreadsheetById(input.id);
         if (!spreadsheet) {
@@ -299,8 +300,11 @@ export const appRouter = router({
           throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied' });
         }
         
-        // Parse Excel data
-        const data = await parseExcelFile(spreadsheet.fileUrl);
+        // Get fresh download URL from S3
+        const { url: freshFileUrl } = await storageGet(spreadsheet.fileKey);
+        
+        // Parse Excel data with fresh URL
+        const data = await parseExcelFile(freshFileUrl);
         
         return {
           ...spreadsheet,

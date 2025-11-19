@@ -1,0 +1,18 @@
+{
+  "query": "SELECT id, name, fileUrl, fileKey, userId, createdAt FROM spreadsheets WHERE id = 240002",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 3DhrynYvWxcsTbZ.6336036734e6 --database PRXoMxHGj8DBhNwkyTrCj9 --execute SELECT id, name, fileUrl, fileKey, userId, createdAt FROM spreadsheets WHERE id = 240002",
+  "rows": [
+    {
+      "id": "240002",
+      "name": "Boeing_Files_Last_45_Days",
+      "fileUrl": "https://d2xsxph8kpxj0f.cloudfront.net/310419663030707274/PRXoMxHGj8DBhNwkyTrCj9/1/spreadsheets/Boeing_Files_Last_45_Days.xlsx-1763569640230-3nd6k",
+      "fileKey": "1/spreadsheets/Boeing_Files_Last_45_Days.xlsx-1763569640230-3nd6k",
+      "userId": "1",
+      "createdAt": "2025-11-19 16:27:20"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tfileUrl\tfileKey\tuserId\tcreatedAt\n240002\tBoeing_Files_Last_45_Days\thttps://d2xsxph8kpxj0f.cloudfront.net/310419663030707274/PRXoMxHGj8DBhNwkyTrCj9/1/spreadsheets/Boeing_Files_Last_45_Days.xlsx-1763569640230-3nd6k\t1/spreadsheets/Boeing_Files_Last_45_Days.xlsx-1763569640230-3nd6k\t1\t2025-11-19 16:27:20\n",
+  "stderr": "",
+  "execution_time_ms": 121
+}
