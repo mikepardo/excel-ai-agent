@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, spreadsheets, InsertSpreadsheet, checkpoints, InsertCheckpoint, chatMessages, InsertChatMessage } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,76 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Spreadsheet queries
+export async function createSpreadsheet(data: InsertSpreadsheet) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(spreadsheets).values(data);
+  return result[0].insertId;
+}
+
+export async function getUserSpreadsheets(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(spreadsheets).where(eq(spreadsheets.userId, userId)).orderBy(desc(spreadsheets.updatedAt));
+}
+
+export async function getSpreadsheetById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(spreadsheets).where(eq(spreadsheets.id, id)).limit(1);
+  return result[0];
+}
+
+export async function updateSpreadsheet(id: number, data: Partial<InsertSpreadsheet>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.update(spreadsheets).set(data).where(eq(spreadsheets.id, id));
+}
+
+export async function deleteSpreadsheet(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(spreadsheets).where(eq(spreadsheets.id, id));
+}
+
+// Checkpoint queries
+export async function createCheckpoint(data: InsertCheckpoint) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(checkpoints).values(data);
+  return result[0].insertId;
+}
+
+export async function getSpreadsheetCheckpoints(spreadsheetId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(checkpoints).where(eq(checkpoints.spreadsheetId, spreadsheetId)).orderBy(desc(checkpoints.createdAt));
+}
+
+export async function getCheckpointById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.select().from(checkpoints).where(eq(checkpoints.id, id)).limit(1);
+  return result[0];
+}
+
+// Chat message queries
+export async function createChatMessage(data: InsertChatMessage) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  const result = await db.insert(chatMessages).values(data);
+  return result[0].insertId;
+}
+
+export async function getSpreadsheetMessages(spreadsheetId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(chatMessages).where(eq(chatMessages.spreadsheetId, spreadsheetId)).orderBy(chatMessages.createdAt);
+}
+
+export async function deleteChatMessages(spreadsheetId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  await db.delete(chatMessages).where(eq(chatMessages.spreadsheetId, spreadsheetId));
+}

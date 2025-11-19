@@ -35,6 +35,11 @@ async function startServer() {
   app.use(express.urlencoded({ limit: "50mb", extended: true }));
   // OAuth callback under /api/oauth/callback
   registerOAuthRoutes(app);
+  
+  // File upload endpoint
+  const { uploadMiddleware, handleFileUpload } = await import('../uploadHandler');
+  app.post('/api/upload', uploadMiddleware, handleFileUpload);
+  
   // tRPC API
   app.use(
     "/api/trpc",
