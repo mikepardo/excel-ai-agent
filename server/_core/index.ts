@@ -65,6 +65,11 @@ async function startServer() {
   server.listen(port, () => {
     console.log(`Server running on http://localhost:${port}/`);
   });
+
+  // Setup Socket.IO for real-time collaboration
+  const { setupCollaboration } = await import('../collaboration');
+  setupCollaboration(server);
+  console.log('[Collaboration] Socket.IO initialized');
 }
 
 startServer().catch(console.error);

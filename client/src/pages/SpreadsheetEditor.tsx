@@ -10,6 +10,17 @@ import { APP_TITLE, getLoginUrl } from "@/const";
 import { toast } from "sonner";
 import { useState, useRef, useEffect } from "react";
 import { Streamdown } from "streamdown";
+import { useCollaboration } from "@/hooks/useCollaboration";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Users, Calculator, BarChart3 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { VisualizationPanel } from "@/components/VisualizationPanel";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs";
 
 export default function SpreadsheetEditor() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -20,6 +31,14 @@ export default function SpreadsheetEditor() {
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { user } = useAuth();
+  const collaboration = useCollaboration({
+    spreadsheetId: spreadsheetId!,
+    userId: user?.id || 0,
+    userName: user?.name || user?.email || 'Anonymous',
+    enabled: !!spreadsheetId && !!user,
+  });
 
   const { data: spreadsheet, isLoading: loadingSpreadsheet } = trpc.spreadsheet.get.useQuery(
     { id: spreadsheetId! },
@@ -122,7 +141,29 @@ export default function SpreadsheetEditor() {
               <span className="text-xl font-bold text-gray-900">{spreadsheet.name}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-4">
+            {/* Active Users */}
+            {collaboration.connected && collaboration.activeUsers.length > 0 && (
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-gray-600" />
+                <div className="flex -space-x-2">
+                  {collaboration.activeUsers.slice(0, 3).map((user) => (
+                    <Avatar key={user.userId} className="h-8 w-8 border-2 border-white">
+                      <AvatarFallback style={{ backgroundColor: user.color }}>
+                        {user.userName.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                  ))}
+                  {collaboration.activeUsers.length > 3 && (
+                    <Avatar className="h-8 w-8 border-2 border-white bg-gray-200">
+                      <AvatarFallback className="text-xs">
+                        +{collaboration.activeUsers.length - 3}
+                      </AvatarFallback>
+                    </Avatar>
+                  )}
+                </div>
+              </div>
+            )}
             <Button 
               variant="outline" 
               size="sm"
@@ -147,9 +188,69 @@ export default function SpreadsheetEditor() {
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
+        {/* Formula Helper Sidebar */}
+        <div className="w-64 border-r bg-gray-50 p-4 overflow-y-auto">
+          <div className="space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Calculator className="h-4 w-4 text-emerald-600" />
+                <h3 className="font-semibold text-sm">Quick Formulas</h3>
+              </div>
+              <div className="space-y-2">
+                {[
+                  { name: 'SUM', desc: 'Add numbers', example: '=SUM(A1:A10)' },
+                  { name: 'AVERAGE', desc: 'Calculate average', example: '=AVERAGE(B1:B10)' },
+                  { name: 'IF', desc: 'Conditional logic', example: '=IF(A1>10,"Yes","No")' },
+                  { name: 'VLOOKUP', desc: 'Lookup values', example: '=VLOOKUP(A2,B:D,3,FALSE)' },
+                  { name: 'COUNT', desc: 'Count numbers', example: '=COUNT(A1:A10)' },
+                ].map((formula) => (
+                  <button
+                    key={formula.name}
+                    className="w-full text-left p-2 rounded hover:bg-white transition-colors border border-transparent hover:border-emerald-200"
+                    onClick={() => {
+                      // Copy to clipboard
+                      navigator.clipboard.writeText(formula.example);
+                      toast.success(`${formula.name} formula copied!`);
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-xs font-semibold text-emerald-600">
+                        {formula.name}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        Copy
+                      </Badge>
+                    </div>
+                    <p className="text-xs text-gray-600 mt-1">{formula.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t">
+              <h4 className="text-xs font-semibold text-gray-700 mb-2">Tips</h4>
+              <ul className="text-xs text-gray-600 space-y-1">
+                <li>• Start formulas with =</li>
+                <li>• Use : for ranges (A1:A10)</li>
+                <li>• Press Tab for suggestions</li>
+                <li>• Ask AI for help in chat</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
         {/* Spreadsheet View */}
         <div className="flex-1 p-4 overflow-auto">
-          <Card className="h-full p-6">
+          <Tabs defaultValue="spreadsheet" className="h-full">
+            <TabsList>
+              <TabsTrigger value="spreadsheet">Spreadsheet</TabsTrigger>
+              <TabsTrigger value="charts">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Charts
+              </TabsTrigger>
+            </TabsList>
+            <TabsContent value="spreadsheet" className="h-full">
+              <Card className="h-full p-6">
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">Spreadsheet Data</h3>
               {spreadsheet.data && spreadsheet.data.sheets.length > 0 ? (
@@ -187,7 +288,26 @@ export default function SpreadsheetEditor() {
                 <p className="text-gray-500">No data available</p>
               )}
             </div>
-          </Card>
+              </Card>
+            </TabsContent>
+            <TabsContent value="charts" className="h-full">
+              <div className="p-4">
+                {spreadsheet && (
+                  <VisualizationPanel
+                    data={{
+                      headers: ['Category', 'Value', 'Growth'],
+                      rows: [
+                        ['Q1', 1000, 0.15],
+                        ['Q2', 1500, 0.25],
+                        ['Q3', 1800, 0.20],
+                        ['Q4', 2200, 0.22],
+                      ],
+                    }}
+                  />
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
 
         {/* Chat Panel */}

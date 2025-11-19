@@ -19,6 +19,70 @@ export const appRouter = router({
     }),
   }),
 
+  chart: router({
+    // Get chart recommendations
+    recommend: protectedProcedure
+      .input(z.object({
+        headers: z.array(z.string()),
+        rows: z.array(z.array(z.any())),
+      }))
+      .query(async ({ input }) => {
+        const { recommendCharts } = await import('./chartRecommendations');
+        return recommendCharts(input);
+      }),
+
+    // Transform data for charting
+    transformData: publicProcedure
+      .input(z.object({
+        headers: z.array(z.string()),
+        rows: z.array(z.array(z.any())),
+        config: z.object({
+          xAxis: z.string().optional(),
+          yAxis: z.array(z.string()).optional(),
+          dataKey: z.string().optional(),
+          valueKey: z.string().optional(),
+        }),
+      }))
+      .query(async ({ input }) => {
+        const { transformDataForChart } = await import('./chartRecommendations');
+        return transformDataForChart(
+          { headers: input.headers, rows: input.rows },
+          input.config
+        );
+      }),
+  }),
+
+  formula: router({
+    // Get formula suggestions
+    getSuggestions: publicProcedure
+      .input(z.object({ query: z.string() }))
+      .query(async ({ input }) => {
+        const { getFormulaSuggestions } = await import('./formulaSuggestions');
+        return getFormulaSuggestions(input.query);
+      }),
+
+    // Get AI-powered formula suggestions
+    getAISuggestions: protectedProcedure
+      .input(z.object({
+        cellRef: z.string(),
+        nearbyData: z.array(z.array(z.any())).optional(),
+        columnHeaders: z.array(z.string()).optional(),
+        userIntent: z.string().optional(),
+      }))
+      .query(async ({ input }) => {
+        const { getAIFormulaSuggestions } = await import('./formulaSuggestions');
+        return getAIFormulaSuggestions(input);
+      }),
+
+    // Explain a formula
+    explain: publicProcedure
+      .input(z.object({ formula: z.string() }))
+      .query(async ({ input }) => {
+        const { explainFormula } = await import('./formulaSuggestions');
+        return { explanation: await explainFormula(input.formula) };
+      }),
+  }),
+
   template: router({
     // List all available templates
     list: publicProcedure.query(async () => {
