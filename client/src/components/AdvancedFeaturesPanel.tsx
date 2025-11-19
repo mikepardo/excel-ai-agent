@@ -28,8 +28,12 @@ import {
   Tag,
   Filter,
   History,
+  BarChart2,
+  Plug,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { APIMarketplacePanel } from './APIMarketplacePanel';
+import { AdvancedChartsPanel } from './AdvancedChartsPanel';
 
 interface AdvancedFeaturesPanelProps {
   spreadsheetId: number;
@@ -112,7 +116,7 @@ export function AdvancedFeaturesPanel({ spreadsheetId, spreadsheetData }: Advanc
       <h2 className="text-xl font-bold mb-4">Advanced Features</h2>
 
       <Tabs value={activeFeature} onValueChange={setActiveFeature}>
-        <TabsList className="grid grid-cols-5 mb-4">
+        <TabsList className="grid grid-cols-7 mb-4">
           <TabsTrigger value="formatting">
             <Palette className="h-4 w-4" />
           </TabsTrigger>
@@ -124,6 +128,12 @@ export function AdvancedFeaturesPanel({ spreadsheetId, spreadsheetData }: Advanc
           </TabsTrigger>
           <TabsTrigger value="search">
             <Search className="h-4 w-4" />
+          </TabsTrigger>
+          <TabsTrigger value="charts">
+            <BarChart2 className="h-4 w-4" />
+          </TabsTrigger>
+          <TabsTrigger value="api">
+            <Plug className="h-4 w-4" />
           </TabsTrigger>
           <TabsTrigger value="more">
             More
@@ -316,6 +326,16 @@ export function AdvancedFeaturesPanel({ spreadsheetId, spreadsheetData }: Advanc
               </Button>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Advanced Charts */}
+        <TabsContent value="charts">
+          <AdvancedChartsPanel spreadsheetData={spreadsheetData} />
+        </TabsContent>
+
+        {/* API Marketplace */}
+        <TabsContent value="api">
+          <APIMarketplacePanel spreadsheetId={spreadsheetId} />
         </TabsContent>
 
         {/* More Features */}

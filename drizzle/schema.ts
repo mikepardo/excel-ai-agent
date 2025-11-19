@@ -124,6 +124,35 @@ export const namedRanges = mysqlTable('namedRanges', {
 export type NamedRange = typeof namedRanges.$inferSelect;
 export type InsertNamedRange = typeof namedRanges.$inferInsert;
 
+export const apiConnections = mysqlTable('apiConnections', {
+  id: int('id').autoincrement().primaryKey(),
+  userId: int('userId').notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  provider: varchar('provider', { length: 100 }).notNull(), // salesforce, quickbooks, google_analytics, sql, custom
+  config: text('config').notNull(), // JSON configuration including credentials
+  status: varchar('status', { length: 50 }).default('active').notNull(), // active, inactive, error
+  lastSyncAt: timestamp('lastSyncAt'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+  updatedAt: timestamp('updatedAt').defaultNow().onUpdateNow().notNull(),
+});
+
+export type ApiConnection = typeof apiConnections.$inferSelect;
+export type InsertApiConnection = typeof apiConnections.$inferInsert;
+
+export const dataSyncs = mysqlTable('dataSyncs', {
+  id: int('id').autoincrement().primaryKey(),
+  connectionId: int('connectionId').notNull(),
+  spreadsheetId: int('spreadsheetId').notNull(),
+  syncConfig: text('syncConfig').notNull(), // JSON: query, mapping, schedule
+  status: varchar('status', { length: 50 }).default('pending').notNull(),
+  lastRunAt: timestamp('lastRunAt'),
+  nextRunAt: timestamp('nextRunAt'),
+  createdAt: timestamp('createdAt').defaultNow().notNull(),
+});
+
+export type DataSync = typeof dataSyncs.$inferSelect;
+export type InsertDataSync = typeof dataSyncs.$inferInsert;
+
 /**
  * Chat messages between user and AI
  */
